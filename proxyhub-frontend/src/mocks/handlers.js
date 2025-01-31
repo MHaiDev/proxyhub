@@ -12,7 +12,7 @@ export const handlers = [
   // Get all proxies
   http.get('http://localhost:3000/proxies', () => {
     return HttpResponse.json(proxies, {
-      delay: 500
+      delay: 2000
     })
   }),
 

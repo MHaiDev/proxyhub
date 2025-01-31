@@ -10,13 +10,13 @@ export const ProxyProvider = ({ children }) => {
   const queryClient = useQueryClient()
 
   // Fetch proxies
-  const { data: proxies = [] } = useQuery({
+  const { data: proxies = [], isLoading } = useQuery({
     queryKey: ['proxies'],
     queryFn: proxyApi.getAll
   })
 
   // Add proxy
-  const { mutate: addProxy } = useMutation({
+  const { mutate: addProxy, isPending: isAddingProxy } = useMutation({
     mutationFn: proxyApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries(['proxies'])
@@ -67,6 +67,8 @@ export const ProxyProvider = ({ children }) => {
     <ProxyContext.Provider 
       value={{
         proxies,
+        isLoading,
+        isAddingProxy,
         addProxy,
         updateProxy,
         deleteProxy,

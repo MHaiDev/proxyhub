@@ -16,6 +16,7 @@ import {
 import { useState } from 'react'
 import { useProxies } from '../context/ProxyContext'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
+import ProxyListSkeleton from './ProxyListSkeleton'
 
 // Mock data - will be replaced with real API data later
 const MOCK_PROXIES = [
@@ -25,11 +26,15 @@ const MOCK_PROXIES = [
 ]
 
 const ProxyList = ({ proxies, onEdit }) => {
-  const { toggleProxyStatus, deleteProxy } = useProxies()
+  const { toggleProxyStatus, deleteProxy, isLoading } = useProxies()
   const [hoveredId, setHoveredId] = useState(null)
   const [proxyToDelete, setProxyToDelete] = useState(null)
   const { isOpen, onOpen, onClose } = useDisclosure()
   
+  if (isLoading) {
+    return <ProxyListSkeleton />
+  }
+
   const handleDeleteClick = (proxy) => {
     setProxyToDelete(proxy)
     onOpen()
