@@ -1,4 +1,5 @@
 import {
+  Box,
   Table,
   Thead,
   Tbody,
@@ -8,11 +9,12 @@ import {
   Button,
   Badge,
   HStack,
-  Box,
+  VStack,
   Switch,
   Text,
   useDisclosure,
-  Spinner
+  Spinner,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useProxies } from '../context/ProxyContext'
@@ -38,6 +40,9 @@ const ProxyList = ({ proxies, onEdit }) => {
   const [proxyToDelete, setProxyToDelete] = useState(null)
   const { isOpen, onOpen, onClose } = useDisclosure()
   
+  // Responsive Layout
+  const isMobile = useBreakpointValue({ base: true, md: false })
+
   if (isLoading) {
     return <ProxyListSkeleton />
   }
@@ -59,6 +64,85 @@ const ProxyList = ({ proxies, onEdit }) => {
     return status === 'active' ? 'green' : 'gray'
   }
 
+  // Mobile Card Layout
+  if (isMobile) {
+    return (
+      <VStack spacing={4} align="stretch" w="full">
+        {proxies.map((proxy) => (
+          <Box 
+            key={proxy.id}
+            p={4}
+            bg="white"
+            shadow="sm"
+            rounded="lg"
+          >
+            <VStack align="stretch" spacing={3}>
+              <HStack justify="space-between">
+                <Text fontWeight="bold">{proxy.name}</Text>
+                <Badge 
+                  colorScheme={getStatusColor(proxy.status)}
+                  width="70px"
+                  textAlign="center"
+                >
+                  {proxy.status}
+                </Badge>
+              </HStack>
+              
+              <HStack justify="space-between">
+                <Text color="gray.600">Host:</Text>
+                <Text>{proxy.host}</Text>
+              </HStack>
+              
+              <HStack justify="space-between">
+                <Text color="gray.600">Port:</Text>
+                <Text>{proxy.port}</Text>
+              </HStack>
+              
+              <HStack justify="space-between" align="center">
+                <Text color="gray.600">Status:</Text>
+                <Switch
+                  size="sm"
+                  isChecked={proxy.status === 'active'}
+                  onChange={() => toggleProxyStatus(proxy.id)}
+                  isDisabled={isToggling}
+                />
+              </HStack>
+              
+              <HStack spacing={2} justify="flex-end">
+                <Button 
+                  size="sm" 
+                  colorScheme="blue"
+                  onClick={() => onEdit(proxy)}
+                  isDisabled={isDeleting || isToggling}
+                >
+                  Edit
+                </Button>
+                <Button 
+                  size="sm" 
+                  colorScheme="red"
+                  onClick={() => handleDeleteClick(proxy)}
+                  isDisabled={isDeleting || isToggling}
+                  leftIcon={isDeleting ? <Spinner size="sm" /> : null}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </Button>
+              </HStack>
+            </VStack>
+          </Box>
+        ))}
+        
+        <DeleteConfirmationDialog
+          isOpen={isOpen}
+          onClose={onClose}
+          onConfirm={handleDeleteConfirm}
+          proxyName={proxyToDelete?.name || ''}
+          isLoading={isDeleting}
+        />
+      </VStack>
+    )
+  }
+
+  // Desktop Table Layout
   return (
     <Box overflowX="auto" w="full">
       <Table variant="simple" w="full">
