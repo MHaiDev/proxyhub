@@ -8,8 +8,12 @@ import {
   Button,
   Badge,
   HStack,
-  Box
+  Box,
+  Switch,
+  Text
 } from '@chakra-ui/react'
+import { useState } from 'react'
+import { useProxies } from '../context/ProxyContext'
 
 // Mock data - will be replaced with real API data later
 const MOCK_PROXIES = [
@@ -19,6 +23,9 @@ const MOCK_PROXIES = [
 ]
 
 const ProxyList = ({ proxies, onEdit, onDelete }) => {
+  const { toggleProxyStatus } = useProxies()
+  const [hoveredId, setHoveredId] = useState(null)
+  
   const getStatusColor = (status) => {
     return status === 'active' ? 'green' : 'gray'
   }
@@ -42,9 +49,43 @@ const ProxyList = ({ proxies, onEdit, onDelete }) => {
               <Td>{proxy.host}</Td>
               <Td isNumeric>{proxy.port}</Td>
               <Td>
-                <Badge colorScheme={getStatusColor(proxy.status)}>
-                  {proxy.status}
-                </Badge>
+                <HStack spacing={3} justifyContent="flex-start" minW="140px">
+                  <Badge 
+                    colorScheme={getStatusColor(proxy.status)}
+                    width="70px"
+                    textAlign="center"
+                  >
+                    {proxy.status}
+                  </Badge>
+                  <Box position="relative">
+                    {hoveredId === proxy.id && (
+                      <Text
+                        position="absolute"
+                        bottom="100%"
+                        left="50%"
+                        transform="translateX(-50%)"
+                        fontSize="xs"
+                        color="gray.600"
+                        mb={1}
+                        whiteSpace="nowrap"
+                        bg="white"
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                        boxShadow="sm"
+                      >
+                        Click to {proxy.status === 'active' ? 'deactivate' : 'activate'}
+                      </Text>
+                    )}
+                    <Switch
+                      size="sm"
+                      isChecked={proxy.status === 'active'}
+                      onChange={() => toggleProxyStatus(proxy.id)}
+                      onMouseEnter={() => setHoveredId(proxy.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                    />
+                  </Box>
+                </HStack>
               </Td>
               <Td>
                 <HStack spacing={2}>
