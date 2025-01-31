@@ -18,7 +18,7 @@ const MOCK_PROXIES = [
   { id: 3, name: 'Proxy 3', host: '192.168.1.3', port: 8082, status: 'active' }
 ]
 
-const ProxyList = () => {
+const ProxyList = ({ proxies, onEdit, onDelete }) => {
   const getStatusColor = (status) => {
     return status === 'active' ? 'green' : 'gray'
   }
@@ -36,7 +36,7 @@ const ProxyList = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {MOCK_PROXIES.map((proxy) => (
+          {proxies.map((proxy) => (
             <Tr key={proxy.id}>
               <Td>{proxy.name}</Td>
               <Td>{proxy.host}</Td>
@@ -48,10 +48,18 @@ const ProxyList = () => {
               </Td>
               <Td>
                 <HStack spacing={2}>
-                  <Button size="sm" colorScheme="blue">
+                  <Button 
+                    size="sm" 
+                    colorScheme="blue"
+                    onClick={() => onEdit(proxy)}
+                  >
                     Edit
                   </Button>
-                  <Button size="sm" colorScheme="red">
+                  <Button 
+                    size="sm" 
+                    colorScheme="red"
+                    onClick={() => onDelete(proxy.id)}
+                  >
                     Delete
                   </Button>
                 </HStack>
