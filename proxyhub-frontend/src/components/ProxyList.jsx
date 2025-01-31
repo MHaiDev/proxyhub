@@ -11,7 +11,8 @@ import {
   Box,
   Switch,
   Text,
-  useDisclosure
+  useDisclosure,
+  Spinner
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useProxies } from '../context/ProxyContext'
@@ -26,7 +27,13 @@ const MOCK_PROXIES = [
 ]
 
 const ProxyList = ({ proxies, onEdit }) => {
-  const { toggleProxyStatus, deleteProxy, isLoading } = useProxies()
+  const { 
+    toggleProxyStatus, 
+    deleteProxy, 
+    isLoading,
+    isDeleting,
+    isToggling 
+  } = useProxies()
   const [hoveredId, setHoveredId] = useState(null)
   const [proxyToDelete, setProxyToDelete] = useState(null)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -105,6 +112,7 @@ const ProxyList = ({ proxies, onEdit }) => {
                       onChange={() => toggleProxyStatus(proxy.id)}
                       onMouseEnter={() => setHoveredId(proxy.id)}
                       onMouseLeave={() => setHoveredId(null)}
+                      isDisabled={isToggling}
                     />
                   </Box>
                 </HStack>
@@ -115,6 +123,7 @@ const ProxyList = ({ proxies, onEdit }) => {
                     size="sm" 
                     colorScheme="blue"
                     onClick={() => onEdit(proxy)}
+                    isDisabled={isDeleting || isToggling}
                   >
                     Edit
                   </Button>
@@ -122,8 +131,10 @@ const ProxyList = ({ proxies, onEdit }) => {
                     size="sm" 
                     colorScheme="red"
                     onClick={() => handleDeleteClick(proxy)}
+                    isDisabled={isDeleting || isToggling}
+                    leftIcon={isDeleting ? <Spinner size="sm" /> : null}
                   >
-                    Delete
+                    {isDeleting ? 'Deleting...' : 'Delete'}
                   </Button>
                 </HStack>
               </Td>
@@ -137,6 +148,7 @@ const ProxyList = ({ proxies, onEdit }) => {
         onClose={onClose}
         onConfirm={handleDeleteConfirm}
         proxyName={proxyToDelete?.name || ''}
+        isLoading={isDeleting}
       />
     </Box>
   )

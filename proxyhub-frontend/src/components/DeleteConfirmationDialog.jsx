@@ -10,7 +10,7 @@ import {
 import { useRef } from 'react'
 import PropTypes from 'prop-types'
 
-const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, proxyName }) => {
+const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, proxyName, isLoading }) => {
   const cancelRef = useRef()
 
   return (
@@ -30,10 +30,16 @@ const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, proxyName }) => 
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
+            <Button ref={cancelRef} onClick={onClose} isDisabled={isLoading}>
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={onConfirm} ml={3}>
+            <Button 
+              colorScheme="red" 
+              onClick={onConfirm} 
+              ml={3}
+              isLoading={isLoading}
+              loadingText="Deleting..."
+            >
               Delete
             </Button>
           </AlertDialogFooter>
@@ -47,7 +53,8 @@ DeleteConfirmationDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
-  proxyName: PropTypes.string.isRequired
+  proxyName: PropTypes.string.isRequired,
+  isLoading: PropTypes.bool
 }
 
 export default DeleteConfirmationDialog 

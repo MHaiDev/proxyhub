@@ -28,7 +28,7 @@ export const ProxyProvider = ({ children }) => {
   })
 
   // Update proxy
-  const { mutate: updateProxy } = useMutation({
+  const { mutate: updateProxy, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, ...data }) => proxyApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['proxies'])
@@ -40,7 +40,7 @@ export const ProxyProvider = ({ children }) => {
   })
 
   // Delete proxy
-  const { mutate: deleteProxy } = useMutation({
+  const { mutate: deleteProxy, isPending: isDeleting } = useMutation({
     mutationFn: proxyApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries(['proxies'])
@@ -52,7 +52,7 @@ export const ProxyProvider = ({ children }) => {
   })
 
   // Toggle proxy status
-  const { mutate: toggleProxyStatus } = useMutation({
+  const { mutate: toggleProxyStatus, isPending: isToggling } = useMutation({
     mutationFn: proxyApi.toggleStatus,
     onSuccess: () => {
       queryClient.invalidateQueries(['proxies'])
@@ -69,6 +69,9 @@ export const ProxyProvider = ({ children }) => {
         proxies,
         isLoading,
         isAddingProxy,
+        isUpdating,
+        isDeleting,
+        isToggling,
         addProxy,
         updateProxy,
         deleteProxy,
