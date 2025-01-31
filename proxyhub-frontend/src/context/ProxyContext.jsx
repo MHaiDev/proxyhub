@@ -1,74 +1,67 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@chakra-ui/react'
-import PropTypes from 'prop-types'
+import { proxyApi } from '../services/api'
 
 const ProxyContext = createContext(null)
 
 export const ProxyProvider = ({ children }) => {
-  const [proxies, setProxies] = useState([
-    { id: 1, name: 'Proxy 1', host: '192.168.1.1', port: 8080, status: 'active' },
-    { id: 2, name: 'Proxy 2', host: '192.168.1.2', port: 8081, status: 'inactive' },
-    { id: 3, name: 'Proxy 3', host: '192.168.1.3', port: 8082, status: 'active' }
-  ])
   const toast = useToast()
+  const queryClient = useQueryClient()
 
-  const showToast = (title, status = 'success') => {
-    toast({
-      title,
-      status,
-      duration: 3000,
-      isClosable: true,
-      position: 'top-right'
-    })
-  }
+  // Fetch proxies
+  const { data: proxies = [] } = useQuery({
+    queryKey: ['proxies'],
+    queryFn: proxyApi.getAll
+  })
 
-  const addProxy = (proxy) => {
-    try {
-      setProxies([...proxies, { ...proxy, id: Date.now() }])
-      showToast('Proxy added successfully')
-    } catch (error) {
-      showToast('Failed to add proxy', 'error')
-      console.error('Error adding proxy:', error)
+  // Add proxy
+  const { mutate: addProxy } = useMutation({
+    mutationFn: proxyApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proxies'])
+      toast({ title: 'Proxy added successfully', status: 'success' })
+    },
+    onError: () => {
+      toast({ title: 'Failed to add proxy', status: 'error' })
     }
-  }
+  })
 
-  const updateProxy = (id, updatedProxy) => {
-    try {
-      setProxies(proxies.map(proxy => 
-        proxy.id === id ? { ...updatedProxy, id } : proxy
-      ))
-      showToast('Proxy updated successfully')
-    } catch (error) {
-      showToast('Failed to update proxy', 'error')
-      console.error('Error updating proxy:', error)
+  // Update proxy
+  const { mutate: updateProxy } = useMutation({
+    mutationFn: ({ id, ...data }) => proxyApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proxies'])
+      toast({ title: 'Proxy updated successfully', status: 'success' })
+    },
+    onError: () => {
+      toast({ title: 'Failed to update proxy', status: 'error' })
     }
-  }
+  })
 
-  const deleteProxy = (id) => {
-    try {
-      setProxies(proxies.filter(proxy => proxy.id !== id))
-      showToast('Proxy deleted successfully')
-    } catch (error) {
-      showToast('Failed to delete proxy', 'error')
-      console.error('Error deleting proxy:', error)
+  // Delete proxy
+  const { mutate: deleteProxy } = useMutation({
+    mutationFn: proxyApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proxies'])
+      toast({ title: 'Proxy deleted successfully', status: 'success' })
+    },
+    onError: () => {
+      toast({ title: 'Failed to delete proxy', status: 'error' })
     }
-  }
+  })
 
-  const toggleProxyStatus = (id) => {
-    try {
-      setProxies(proxies.map(proxy => {
-        if (proxy.id === id) {
-          const newStatus = proxy.status === 'active' ? 'inactive' : 'active'
-          showToast(`Proxy ${newStatus}`)
-          return { ...proxy, status: newStatus }
-        }
-        return proxy
-      }))
-    } catch (error) {
-      showToast('Failed to toggle proxy status', 'error')
-      console.error('Error toggling proxy status:', error)
+  // Toggle proxy status
+  const { mutate: toggleProxyStatus } = useMutation({
+    mutationFn: proxyApi.toggleStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proxies'])
+      toast({ title: 'Status updated successfully', status: 'success' })
+    },
+    onError: () => {
+      toast({ title: 'Failed to update status', status: 'error' })
     }
-  }
+  })
 
   return (
     <ProxyContext.Provider 
@@ -83,10 +76,6 @@ export const ProxyProvider = ({ children }) => {
       {children}
     </ProxyContext.Provider>
   )
-}
-
-ProxyProvider.propTypes = {
-  children: PropTypes.node.isRequired
 }
 
 export const useProxies = () => {
