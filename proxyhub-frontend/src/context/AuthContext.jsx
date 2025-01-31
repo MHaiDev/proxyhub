@@ -1,20 +1,47 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@chakra-ui/react'
 
 const AuthContext = createContext(null)
 
+// Token aus localStorage holen
+const getStoredToken = () => localStorage.getItem('token')
+const getStoredUser = () => {
+  const user = localStorage.getItem('user')
+  return user ? JSON.parse(user) : null
+}
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(getStoredUser)
+  const [token, setToken] = useState(getStoredToken)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const toast = useToast()
+
+  // Token und User im localStorage speichern
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('token', token)
+    } else {
+      localStorage.removeItem('token')
+    }
+  }, [token])
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user))
+    } else {
+      localStorage.removeItem('user')
+    }
+  }, [user])
 
   const login = async (email, password) => {
     setIsLoading(true)
     try {
       // Später durch echte API ersetzen
       if (email === 'test@test.com' && password === 'test123') {
+        const mockToken = 'mock-jwt-token'
+        setToken(mockToken)
         setUser({ email, name: 'Test User' })
         navigate('/dashboard')
         toast({
@@ -30,6 +57,8 @@ export const AuthProvider = ({ children }) => {
         description: error.message,
         status: 'error'
       })
+      setToken(null)
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
@@ -39,6 +68,8 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true)
     try {
       // Später durch echte API ersetzen
+      const mockToken = 'mock-jwt-token'
+      setToken(mockToken)
       setUser({ email, name })
       navigate('/dashboard')
       toast({
@@ -51,12 +82,15 @@ export const AuthProvider = ({ children }) => {
         description: error.message,
         status: 'error'
       })
+      setToken(null)
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
   }
 
   const logout = () => {
+    setToken(null)
     setUser(null)
     navigate('/')
     toast({
@@ -65,15 +99,21 @@ export const AuthProvider = ({ children }) => {
     })
   }
 
+  // Token-Validierung (später mit echter JWT-Validierung)
+  const isValidToken = () => {
+    return !!token
+  }
+
   return (
     <AuthContext.Provider 
       value={{
         user,
+        token,
         isLoading,
         login,
         register,
         logout,
-        isAuthenticated: !!user
+        isAuthenticated: isValidToken()
       }}
     >
       {children}
