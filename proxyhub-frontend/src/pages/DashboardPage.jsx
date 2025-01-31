@@ -12,37 +12,27 @@ import { useState } from 'react'
 import DashboardHeader from '../components/DashboardHeader'
 import ProxyList from '../components/ProxyList'
 import ProxyFormModal from '../components/ProxyFormModal'
+import { useProxies } from '../context/ProxyContext'
 
 const DashboardPage = () => {
   const bgColor = useColorModeValue('gray.50', 'gray.800')
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [proxies, setProxies] = useState([
-    { id: 1, name: 'Proxy 1', host: '192.168.1.1', port: 8080, status: 'active' },
-    { id: 2, name: 'Proxy 2', host: '192.168.1.2', port: 8081, status: 'inactive' },
-    { id: 3, name: 'Proxy 3', host: '192.168.1.3', port: 8082, status: 'active' }
-  ])
   const [editingProxy, setEditingProxy] = useState(null)
+  const { proxies, addProxy, updateProxy, deleteProxy } = useProxies()
 
   const handleSubmit = (data) => {
     if (editingProxy) {
-      // Edit existing proxy
-      setProxies(proxies.map(proxy => 
-        proxy.id === editingProxy.id ? { ...data, id: proxy.id } : proxy
-      ))
+      updateProxy(editingProxy.id, data)
     } else {
-      // Add new proxy
-      setProxies([...proxies, { ...data, id: Date.now() }])
+      addProxy(data)
     }
     setEditingProxy(null)
+    onClose()
   }
 
   const handleEdit = (proxy) => {
     setEditingProxy(proxy)
     onOpen()
-  }
-
-  const handleDelete = (proxyId) => {
-    setProxies(proxies.filter(proxy => proxy.id !== proxyId))
   }
 
   const handleAddNew = () => {
@@ -87,7 +77,7 @@ const DashboardPage = () => {
             <ProxyList 
               proxies={proxies}
               onEdit={handleEdit}
-              onDelete={handleDelete}
+              onDelete={deleteProxy}
             />
           </Box>
         </Flex>
