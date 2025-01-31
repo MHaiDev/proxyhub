@@ -29,7 +29,7 @@ export const handlers = [
   }),
 
   // Update proxy
-  http.put('/api/proxies/:id', async ({ params, request }) => {
+  http.put('http://localhost:3000/proxies/:id', async ({ params, request }) => {
     const { id } = params
     const updatedProxy = await request.json()
     proxies = proxies.map(proxy => 
@@ -41,7 +41,7 @@ export const handlers = [
   }),
 
   // Delete proxy
-  http.delete('/api/proxies/:id', ({ params }) => {
+  http.delete('http://localhost:3000/proxies/:id', ({ params }) => {
     const { id } = params
     proxies = proxies.filter(proxy => proxy.id !== Number(id))
     return new HttpResponse(null, {
@@ -51,7 +51,7 @@ export const handlers = [
   }),
 
   // Toggle proxy status
-  http.patch('/api/proxies/:id/toggle', ({ params }) => {
+  http.patch('http://localhost:3000/proxies/:id/toggle', ({ params }) => {
     const { id } = params
     const proxy = proxies.find(p => p.id === Number(id))
     if (proxy) {

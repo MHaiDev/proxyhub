@@ -10,10 +10,12 @@ import {
   HStack,
   Box,
   Switch,
-  Text
+  Text,
+  useDisclosure
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useProxies } from '../context/ProxyContext'
+import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 
 // Mock data - will be replaced with real API data later
 const MOCK_PROXIES = [
@@ -22,10 +24,25 @@ const MOCK_PROXIES = [
   { id: 3, name: 'Proxy 3', host: '192.168.1.3', port: 8082, status: 'active' }
 ]
 
-const ProxyList = ({ proxies, onEdit, onDelete }) => {
-  const { toggleProxyStatus } = useProxies()
+const ProxyList = ({ proxies, onEdit }) => {
+  const { toggleProxyStatus, deleteProxy } = useProxies()
   const [hoveredId, setHoveredId] = useState(null)
+  const [proxyToDelete, setProxyToDelete] = useState(null)
+  const { isOpen, onOpen, onClose } = useDisclosure()
   
+  const handleDeleteClick = (proxy) => {
+    setProxyToDelete(proxy)
+    onOpen()
+  }
+
+  const handleDeleteConfirm = () => {
+    if (proxyToDelete) {
+      deleteProxy(proxyToDelete.id)
+      setProxyToDelete(null)
+      onClose()
+    }
+  }
+
   const getStatusColor = (status) => {
     return status === 'active' ? 'green' : 'gray'
   }
@@ -99,7 +116,7 @@ const ProxyList = ({ proxies, onEdit, onDelete }) => {
                   <Button 
                     size="sm" 
                     colorScheme="red"
-                    onClick={() => onDelete(proxy.id)}
+                    onClick={() => handleDeleteClick(proxy)}
                   >
                     Delete
                   </Button>
@@ -109,6 +126,13 @@ const ProxyList = ({ proxies, onEdit, onDelete }) => {
           ))}
         </Tbody>
       </Table>
+
+      <DeleteConfirmationDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={handleDeleteConfirm}
+        proxyName={proxyToDelete?.name || ''}
+      />
     </Box>
   )
 }
