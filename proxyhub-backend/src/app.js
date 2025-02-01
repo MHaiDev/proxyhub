@@ -1,9 +1,29 @@
 const express = require('express')
+const helmet = require('helmet')
+const rateLimit = require('express-rate-limit')
 const cors = require('cors')
 const proxyRoutes = require('./routes/proxy.routes')
 const authRoutes = require('./routes/auth.routes')
 
 const app = express()
+
+// CORS vor allen anderen Middlewares
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}))
+
+// Security Middleware
+app.use(helmet())
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+})
+app.use('/api/', limiter)
 
 // Request Logging Middleware
 app.use((req, res, next) => {
@@ -12,7 +32,6 @@ app.use((req, res, next) => {
 })
 
 // Middleware
-app.use(cors())
 app.use(express.json())
 
 // Routes

@@ -14,13 +14,15 @@ import {
   Text,
   useDisclosure,
   Spinner,
-  useBreakpointValue
+  useBreakpointValue,
+  Tooltip
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useProxies } from '../context/ProxyContext'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 import ProxyListSkeleton from './ProxyListSkeleton'
 import PropTypes from 'prop-types'
+import { formatDistanceToNow } from 'date-fns'
 
 // Mock data - will be replaced with real API data later
 /*const MOCK_PROXIES = [
@@ -121,33 +123,18 @@ const ProxyList = ({ proxies, onEdit }) => {
               <HStack justify="space-between" align="center">
                 <Text color="gray.600">Status:</Text>
                 <Box position="relative">
-                  {hoveredId === proxy.id && (
-                    <Text
-                      position="absolute"
-                      bottom="100%"
-                      left="50%"
-                      transform="translateX(-50%)"
-                      fontSize="xs"
-                      color="gray.600"
-                      mb={1}
-                      whiteSpace="nowrap"
-                      bg="white"
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                      boxShadow="sm"
-                    >
-                      Click to {proxy.status === 'active' ? 'deactivate' : 'activate'}
-                    </Text>
-                  )}
-                  <Switch
-                    size="sm"
-                    isChecked={proxy.status === 'active'}
-                    onChange={() => toggleProxyStatus(proxy.id)}
-                    onMouseEnter={() => handleMouseEnter(proxy.id)}
-                    onMouseLeave={handleMouseLeave}
-                    isDisabled={isToggling}
-                  />
+                  <Tooltip label={`Click to ${proxy.status === 'active' ? 'deactivate' : 'activate'}`}>
+                    <Box>
+                      <Switch
+                        size="sm"
+                        isChecked={proxy.status === 'active'}
+                        onChange={() => toggleProxyStatus(proxy.id)}
+                        onMouseEnter={() => handleMouseEnter(proxy.id)}
+                        onMouseLeave={handleMouseLeave}
+                        isDisabled={isToggling}
+                      />
+                    </Box>
+                  </Tooltip>
                 </Box>
               </HStack>
               
@@ -214,34 +201,31 @@ const ProxyList = ({ proxies, onEdit }) => {
                     {proxy.status}
                   </Badge>
                   <Box position="relative">
-                    {hoveredId === proxy.id && (
-                      <Text
-                        position="absolute"
-                        bottom="100%"
-                        left="50%"
-                        transform="translateX(-50%)"
-                        fontSize="xs"
-                        color="gray.600"
-                        mb={1}
-                        whiteSpace="nowrap"
-                        bg="white"
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                        boxShadow="sm"
-                      >
-                        Click to {proxy.status === 'active' ? 'deactivate' : 'activate'}
-                      </Text>
-                    )}
-                    <Switch
-                      size="sm"
-                      isChecked={proxy.status === 'active'}
-                      onChange={() => toggleProxyStatus(proxy.id)}
-                      onMouseEnter={() => handleMouseEnter(proxy.id)}
-                      onMouseLeave={handleMouseLeave}
-                      isDisabled={isToggling}
-                    />
+                    <Tooltip label={`Click to ${proxy.status === 'active' ? 'deactivate' : 'activate'}`}>
+                      <Box>
+                        <Switch
+                          size="sm"
+                          isChecked={proxy.status === 'active'}
+                          onChange={() => toggleProxyStatus(proxy.id)}
+                          onMouseEnter={() => handleMouseEnter(proxy.id)}
+                          onMouseLeave={handleMouseLeave}
+                          isDisabled={isToggling}
+                        />
+                      </Box>
+                    </Tooltip>
                   </Box>
+                  {proxy.latency && (
+                    <Text fontSize="sm" color="gray.600">
+                      {proxy.latency}ms
+                    </Text>
+                  )}
+                  {proxy.lastCheck && (
+                    <Tooltip label={new Date(proxy.lastCheck).toLocaleString()}>
+                      <Text fontSize="xs" color="gray.500">
+                        Last check: {formatDistanceToNow(new Date(proxy.lastCheck))} ago
+                      </Text>
+                    </Tooltip>
+                  )}
                 </HStack>
               </Td>
               <Td>

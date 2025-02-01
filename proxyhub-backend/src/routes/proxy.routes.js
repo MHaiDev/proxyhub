@@ -7,10 +7,11 @@ const {
   toggleStatus
 } = require('../controllers/proxy.controller')
 const authMiddleware = require('../middleware/auth.middleware')
+const { cacheMiddleware } = require('../services/redis.service')
 
 router.use(authMiddleware)
 
-router.get('/', getProxies)
+router.get('/', cacheMiddleware, getProxies)
 router.post('/', createProxy)
 router.put('/:id', updateProxy)
 router.delete('/:id', deleteProxy)

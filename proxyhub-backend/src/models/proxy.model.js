@@ -5,13 +5,21 @@ const proxySchema = new mongoose.Schema({
   host: { type: String, required: true },
   port: { type: Number, required: true },
   status: { type: String, enum: ['active', 'inactive'], default: 'inactive' },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  lastCheck: {
+    type: Date,
+    default: null
+  },
+  latency: {
+    type: Number,
+    default: null
+  }
 }, {
   timestamps: true,
   toJSON: { 
     virtuals: true,
     transform: function(doc, ret) {
-      ret._id = ret._id.toString()
+      ret.id = ret._id.toString()
       return ret
     }
   }

@@ -1,8 +1,36 @@
-# React + Vite
+# ProxyHub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern proxy management platform with React, Node.js and Redis.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔒 Secure user authentication
+- 📊 Proxy status monitoring with latency times
+- 🔄 CRUD operations for proxies
+- 📱 Responsive design (mobile & desktop)
+- 🚦 Rate limiting & security features
+- ⚡ Redis caching for better performance
+
+## Tech Stack
+
+### Frontend
+- React with Vite
+- Chakra UI for the design
+- React Query for state management
+- Axios for API calls
+
+### Backend
+- Node.js & Express
+- MongoDB for data storage
+- Redis for caching
+- JWT for authentication
+
+## Installation
+
+### Requirements
+- Node.js (v14+)
+- MongoDB
+- Redis
+
+### Backend Setup
+
