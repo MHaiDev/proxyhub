@@ -19,7 +19,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
-    // JWT Token erstellen
+    // Echter JWT Token statt mock-token
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,

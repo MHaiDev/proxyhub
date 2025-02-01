@@ -7,7 +7,14 @@ const proxySchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'inactive'], default: 'inactive' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { 
+    virtuals: true,
+    transform: function(doc, ret) {
+      ret._id = ret._id.toString()
+      return ret
+    }
+  }
 })
 
 const Proxy = mongoose.model('Proxy', proxySchema)

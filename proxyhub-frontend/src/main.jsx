@@ -3,11 +3,12 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import App from './App'
 
+// MSW nur aktivieren wenn wir es explizit wollen
+const ENABLE_MOCKS = false
+
 async function enableMocking() {
-  if (process.env.NODE_ENV !== 'development') {
-    return
-  }
- 
+  if (!ENABLE_MOCKS) return
+  
   const { worker } = await import('./mocks/browser')
   return worker.start()
 }

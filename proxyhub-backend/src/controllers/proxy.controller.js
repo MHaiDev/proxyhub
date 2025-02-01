@@ -17,8 +17,8 @@ const createProxy = async (req, res) => {
       ...req.body,
       userId: req.user.id
     })
-    await proxy.save()
-    res.status(201).json(proxy)
+    const savedProxy = await proxy.save()
+    res.status(201).json(savedProxy)
   } catch (error) {
     res.status(400).json({ message: 'Error creating proxy' })
   }
@@ -51,9 +51,9 @@ const deleteProxy = async (req, res) => {
     if (!proxy) {
       return res.status(404).json({ message: 'Proxy not found' })
     }
-    res.status(204).send()
+    res.json({ message: 'Proxy deleted' })
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting proxy' })
+    res.status(400).json({ message: 'Error deleting proxy' })
   }
 }
 
@@ -73,7 +73,7 @@ const toggleStatus = async (req, res) => {
     
     res.json(proxy)
   } catch (error) {
-    res.status(500).json({ message: 'Error toggling status' })
+    res.status(400).json({ message: 'Error toggling proxy status' })
   }
 }
 

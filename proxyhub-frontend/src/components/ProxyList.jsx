@@ -44,6 +44,12 @@ const ProxyList = ({ proxies, onEdit }) => {
   // Responsive Layout
   const isMobile = useBreakpointValue({ base: true, md: false })
 
+  // Validierung der Proxy-Daten
+  const validProxies = proxies.map(proxy => ({
+    ...proxy,
+    id: proxy.id?.toString()
+  }))
+
   if (isLoading) {
     return <ProxyListSkeleton />
   }
@@ -69,11 +75,20 @@ const ProxyList = ({ proxies, onEdit }) => {
     onEdit(proxy)
   }
 
+  // Hover-Handler für Switch
+  const handleMouseEnter = (id) => {
+    setHoveredId(id)
+  }
+
+  const handleMouseLeave = () => {
+    setHoveredId(null)
+  }
+
   // Mobile Card Layout
   if (isMobile) {
     return (
       <VStack spacing={4} align="stretch" w="full">
-        {proxies.map((proxy) => (
+        {validProxies.map((proxy) => (
           <Box 
             key={proxy.id}
             p={4}
@@ -105,12 +120,35 @@ const ProxyList = ({ proxies, onEdit }) => {
               
               <HStack justify="space-between" align="center">
                 <Text color="gray.600">Status:</Text>
-                <Switch
-                  size="sm"
-                  isChecked={proxy.status === 'active'}
-                  onChange={() => toggleProxyStatus(proxy.id)}
-                  isDisabled={isToggling}
-                />
+                <Box position="relative">
+                  {hoveredId === proxy.id && (
+                    <Text
+                      position="absolute"
+                      bottom="100%"
+                      left="50%"
+                      transform="translateX(-50%)"
+                      fontSize="xs"
+                      color="gray.600"
+                      mb={1}
+                      whiteSpace="nowrap"
+                      bg="white"
+                      px={2}
+                      py={1}
+                      borderRadius="md"
+                      boxShadow="sm"
+                    >
+                      Click to {proxy.status === 'active' ? 'deactivate' : 'activate'}
+                    </Text>
+                  )}
+                  <Switch
+                    size="sm"
+                    isChecked={proxy.status === 'active'}
+                    onChange={() => toggleProxyStatus(proxy.id)}
+                    onMouseEnter={() => handleMouseEnter(proxy.id)}
+                    onMouseLeave={handleMouseLeave}
+                    isDisabled={isToggling}
+                  />
+                </Box>
               </HStack>
               
               <HStack spacing={2} justify="flex-end">
@@ -161,7 +199,7 @@ const ProxyList = ({ proxies, onEdit }) => {
           </Tr>
         </Thead>
         <Tbody>
-          {proxies.map((proxy) => (
+          {validProxies.map((proxy) => (
             <Tr key={proxy.id}>
               <Td>{proxy.name}</Td>
               <Td>{proxy.host}</Td>
@@ -199,8 +237,8 @@ const ProxyList = ({ proxies, onEdit }) => {
                       size="sm"
                       isChecked={proxy.status === 'active'}
                       onChange={() => toggleProxyStatus(proxy.id)}
-                      onMouseEnter={() => setHoveredId(proxy.id)}
-                      onMouseLeave={() => setHoveredId(null)}
+                      onMouseEnter={() => handleMouseEnter(proxy.id)}
+                      onMouseLeave={handleMouseLeave}
                       isDisabled={isToggling}
                     />
                   </Box>
@@ -246,7 +284,7 @@ const ProxyList = ({ proxies, onEdit }) => {
 ProxyList.propTypes = {
   proxies: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       host: PropTypes.string.isRequired,
       port: PropTypes.number.isRequired,

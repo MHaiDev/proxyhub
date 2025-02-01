@@ -2,24 +2,36 @@ import { createContext, useContext } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@chakra-ui/react'
 import { proxyApi } from '../services/api'
+import { useAuth } from './AuthContext'
 
 const ProxyContext = createContext(null)
 
 export const ProxyProvider = ({ children }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
-  // Fetch proxies
+  // Query-Key mit userId
+  const queryKey = ['proxies', user?.id]
+
+  // Fetch proxies mit optimierter Konfiguration
   const { data: proxies = [], isLoading } = useQuery({
-    queryKey: ['proxies'],
-    queryFn: proxyApi.getAll
+    queryKey,
+    queryFn: async () => {
+      const data = await proxyApi.getAll()
+      return data
+    },
+    staleTime: 0,
+    cacheTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
+    enabled: !!localStorage.getItem('token')
   })
 
   // Add proxy
   const { mutate: addProxy, isPending: isAddingProxy } = useMutation({
     mutationFn: proxyApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries(['proxies'])
+      queryClient.invalidateQueries(queryKey)
       toast({ title: 'Proxy added successfully', status: 'success' })
     },
     onError: () => {
@@ -29,53 +41,45 @@ export const ProxyProvider = ({ children }) => {
 
   // Update proxy
   const { mutate: updateProxy, isPending: isUpdating } = useMutation({
-    mutationFn: (data) => {
-      if (!data.id) {
-        throw new Error('No ID provided for update')
-      }
-      const { id, ...rest } = data
-      return proxyApi.update(id, rest)
+    mutationFn: async (data) => {
+      if (!data.id) throw new Error('No ID provided for update')
+      const { id, ...updateData } = data
+      const response = await proxyApi.update(id, updateData)
+      queryClient.setQueryData(queryKey, (old) => 
+        old.map(p => p.id === id ? { ...p, ...updateData } : p)
+      )
+      return response
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['proxies'] })
-      toast({ 
-        title: 'Proxy updated successfully', 
-        status: 'success',
-        duration: 3000
-      })
-    },
-    onError: (error) => {
-      console.error('Update error:', error)
-      toast({ 
-        title: 'Failed to update proxy', 
-        description: error.message,
-        status: 'error',
-        duration: 3000
-      })
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey)
     }
   })
 
   // Delete proxy
   const { mutate: deleteProxy, isPending: isDeleting } = useMutation({
-    mutationFn: proxyApi.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['proxies'])
-      toast({ title: 'Proxy deleted successfully', status: 'success' })
+    mutationFn: async (id) => {
+      const response = await proxyApi.delete(id)
+      queryClient.setQueryData(queryKey, (old) => 
+        old.filter(p => p.id !== id)
+      )
+      return response
     },
-    onError: () => {
-      toast({ title: 'Failed to delete proxy', status: 'error' })
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey)
     }
   })
 
   // Toggle proxy status
   const { mutate: toggleProxyStatus, isPending: isToggling } = useMutation({
-    mutationFn: proxyApi.toggleStatus,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['proxies'])
-      toast({ title: 'Status updated successfully', status: 'success' })
+    mutationFn: async (id) => {
+      const response = await proxyApi.toggleStatus(id)
+      queryClient.setQueryData(queryKey, (old) => 
+        old.map(p => p.id === id ? { ...p, status: p.status === 'active' ? 'inactive' : 'active' } : p)
+      )
+      return response
     },
-    onError: () => {
-      toast({ title: 'Failed to update status', status: 'error' })
+    onSettled: () => {
+      queryClient.invalidateQueries(queryKey)
     }
   })
 

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 
 const AuthContext = createContext(null)
 
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const toast = useToast()
+  const queryClient = useQueryClient()
 
   // Token und User im localStorage speichern
   useEffect(() => {
@@ -38,19 +40,30 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setIsLoading(true)
     try {
-      // Später durch echte API ersetzen
-      if (email === 'test@test.com' && password === 'test123') {
-        const mockToken = 'mock-jwt-token'
-        setToken(mockToken)
-        setUser({ email, name: 'Test User' })
-        navigate('/dashboard')
-        toast({
-          title: 'Login successful',
-          status: 'success'
-        })
-      } else {
-        throw new Error('Invalid credentials')
+      // Echte API-Anfrage statt Mock
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed')
       }
+
+      setToken(data.token)
+      setUser(data.user)
+      // Cache leeren beim Login
+      queryClient.clear()
+      navigate('/dashboard')
+      toast({
+        title: 'Login successful',
+        status: 'success'
+      })
     } catch (error) {
       toast({
         title: 'Login failed',
@@ -67,10 +80,23 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, name) => {
     setIsLoading(true)
     try {
-      // Später durch echte API ersetzen
-      const mockToken = 'mock-jwt-token'
-      setToken(mockToken)
-      setUser({ email, name })
+      // Echte API-Anfrage statt Mock
+      const response = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password, name })
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed')
+      }
+
+      setToken(data.token)
+      setUser(data.user)
       navigate('/dashboard')
       toast({
         title: 'Registration successful',
@@ -92,7 +118,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setToken(null)
     setUser(null)
-    navigate('/')
+    // Cache leeren beim Logout
+    queryClient.clear()
+    navigate('/login')
     toast({
       title: 'Logged out successfully',
       status: 'success'

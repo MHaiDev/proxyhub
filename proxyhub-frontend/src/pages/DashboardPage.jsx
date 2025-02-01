@@ -18,13 +18,13 @@ const DashboardPage = () => {
   const bgColor = useColorModeValue('gray.50', 'gray.800')
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [editingProxy, setEditingProxy] = useState(null)
-  const { proxies, addProxy, updateProxy, deleteProxy } = useProxies()
+  const { proxies, addProxy, updateProxy, deleteProxy, isLoading } = useProxies()
 
   const handleSubmit = (data) => {
     if (editingProxy) {
       updateProxy({
-        id: editingProxy.id,
-        ...data
+        ...data,
+        id: editingProxy.id // id statt _id verwenden
       })
     } else {
       addProxy(data)

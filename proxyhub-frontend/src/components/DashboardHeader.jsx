@@ -1,53 +1,39 @@
 import {
   Box,
   Flex,
+  Text,
   Button,
-  useColorModeValue,
-  Container,
-  Text
+  HStack,
+  useColorModeValue
 } from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const DashboardHeader = () => {
-  const navigate = useNavigate()
-  const { logout } = useAuth()
-  const bgColor = useColorModeValue('white', 'gray.900')
+  const { user, logout } = useAuth()
+  const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
 
   return (
     <Box 
-      bg={bgColor} 
-      borderBottom="1px" 
+      as="header" 
+      bg={bgColor}
+      borderBottom="1px"
       borderColor={borderColor}
-      position="sticky"
-      top={0}
-      zIndex={10}
+      py={4}
+      px={8}
     >
-      <Container maxW="container.xl">
-        <Flex py={4} align="center" justify="space-between">
-          <Text 
-            fontSize="xl" 
-            fontWeight="bold" 
-            cursor="pointer"
-            onClick={() => navigate('/')}
-          >
-            ProxyHub
+      <Flex justify="space-between" align="center" maxW="100%" mx="auto">
+        <Text fontSize="2xl" fontWeight="bold">ProxyHub</Text>
+        
+        <HStack spacing={4}>
+          <Text>
+            Welcome, <Text as="span" fontWeight="bold">{user?.name || user?.email}</Text>
           </Text>
-          
-          <Flex gap={4}>
-            <Button variant="ghost" onClick={() => navigate('/settings')}>
-              Settings
-            </Button>
-            <Button colorScheme="blue" onClick={() => navigate('/profile')}>
-              Profile
-            </Button>
-            <Button variant="ghost" onClick={logout}>
-              Logout
-            </Button>
-          </Flex>
-        </Flex>
-      </Container>
+          <Button onClick={logout} variant="ghost">
+            Logout
+          </Button>
+        </HStack>
+      </Flex>
     </Box>
   )
 }
