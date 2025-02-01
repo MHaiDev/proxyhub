@@ -1,5 +1,6 @@
 const Proxy = require('../models/proxy.model')
 
+// Get all proxies for user
 const getProxies = async (req, res) => {
   try {
     const proxies = await Proxy.find({ userId: req.user.id })
@@ -9,6 +10,7 @@ const getProxies = async (req, res) => {
   }
 }
 
+// Create new proxy
 const createProxy = async (req, res) => {
   try {
     const proxy = new Proxy({
@@ -22,7 +24,63 @@ const createProxy = async (req, res) => {
   }
 }
 
+// Update proxy
+const updateProxy = async (req, res) => {
+  try {
+    const proxy = await Proxy.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      req.body,
+      { new: true }
+    )
+    if (!proxy) {
+      return res.status(404).json({ message: 'Proxy not found' })
+    }
+    res.json(proxy)
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating proxy' })
+  }
+}
+
+// Delete proxy
+const deleteProxy = async (req, res) => {
+  try {
+    const proxy = await Proxy.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id
+    })
+    if (!proxy) {
+      return res.status(404).json({ message: 'Proxy not found' })
+    }
+    res.status(204).send()
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting proxy' })
+  }
+}
+
+// Toggle proxy status
+const toggleStatus = async (req, res) => {
+  try {
+    const proxy = await Proxy.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    })
+    if (!proxy) {
+      return res.status(404).json({ message: 'Proxy not found' })
+    }
+    
+    proxy.status = proxy.status === 'active' ? 'inactive' : 'active'
+    await proxy.save()
+    
+    res.json(proxy)
+  } catch (error) {
+    res.status(500).json({ message: 'Error toggling status' })
+  }
+}
+
 module.exports = {
   getProxies,
-  createProxy
+  createProxy,
+  updateProxy,
+  deleteProxy,
+  toggleStatus
 } 
