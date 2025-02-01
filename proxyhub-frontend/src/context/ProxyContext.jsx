@@ -29,13 +29,29 @@ export const ProxyProvider = ({ children }) => {
 
   // Update proxy
   const { mutate: updateProxy, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, ...data }) => proxyApi.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['proxies'])
-      toast({ title: 'Proxy updated successfully', status: 'success' })
+    mutationFn: (data) => {
+      if (!data.id) {
+        throw new Error('No ID provided for update')
+      }
+      const { id, ...rest } = data
+      return proxyApi.update(id, rest)
     },
-    onError: () => {
-      toast({ title: 'Failed to update proxy', status: 'error' })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['proxies'] })
+      toast({ 
+        title: 'Proxy updated successfully', 
+        status: 'success',
+        duration: 3000
+      })
+    },
+    onError: (error) => {
+      console.error('Update error:', error)
+      toast({ 
+        title: 'Failed to update proxy', 
+        description: error.message,
+        status: 'error',
+        duration: 3000
+      })
     }
   })
 

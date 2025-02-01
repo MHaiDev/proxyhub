@@ -52,10 +52,12 @@ const ProxyFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      onSubmit({
+      const submitData = {
         ...formData,
+        ...(initialData?.id ? { id: initialData.id } : {}),
         status: formData.status ? 'active' : 'inactive'
-      })
+      }
+      onSubmit(submitData)
       onClose()
     }
   }
@@ -127,6 +129,7 @@ ProxyFormModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   initialData: PropTypes.shape({
+    id: PropTypes.number,
     name: PropTypes.string,
     host: PropTypes.string,
     port: PropTypes.number,

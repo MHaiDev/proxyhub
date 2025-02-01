@@ -20,13 +20,14 @@ import { useState } from 'react'
 import { useProxies } from '../context/ProxyContext'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 import ProxyListSkeleton from './ProxyListSkeleton'
+import PropTypes from 'prop-types'
 
 // Mock data - will be replaced with real API data later
-const MOCK_PROXIES = [
+/*const MOCK_PROXIES = [
   { id: 1, name: 'Proxy 1', host: '192.168.1.1', port: 8080, status: 'active' },
   { id: 2, name: 'Proxy 2', host: '192.168.1.2', port: 8081, status: 'inactive' },
   { id: 3, name: 'Proxy 3', host: '192.168.1.3', port: 8082, status: 'active' }
-]
+]*/
 
 const ProxyList = ({ proxies, onEdit }) => {
   const { 
@@ -34,7 +35,7 @@ const ProxyList = ({ proxies, onEdit }) => {
     deleteProxy, 
     isLoading,
     isDeleting,
-    isToggling 
+    isToggling,
   } = useProxies()
   const [hoveredId, setHoveredId] = useState(null)
   const [proxyToDelete, setProxyToDelete] = useState(null)
@@ -62,6 +63,10 @@ const ProxyList = ({ proxies, onEdit }) => {
 
   const getStatusColor = (status) => {
     return status === 'active' ? 'green' : 'gray'
+  }
+
+  const handleEdit = (proxy) => {
+    onEdit(proxy)
   }
 
   // Mobile Card Layout
@@ -112,7 +117,7 @@ const ProxyList = ({ proxies, onEdit }) => {
                 <Button 
                   size="sm" 
                   colorScheme="blue"
-                  onClick={() => onEdit(proxy)}
+                  onClick={() => handleEdit(proxy)}
                   isDisabled={isDeleting || isToggling}
                 >
                   Edit
@@ -206,7 +211,7 @@ const ProxyList = ({ proxies, onEdit }) => {
                   <Button 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={() => onEdit(proxy)}
+                    onClick={() => handleEdit(proxy)}
                     isDisabled={isDeleting || isToggling}
                   >
                     Edit
@@ -236,6 +241,19 @@ const ProxyList = ({ proxies, onEdit }) => {
       />
     </Box>
   )
+}
+
+ProxyList.propTypes = {
+  proxies: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      host: PropTypes.string.isRequired,
+      port: PropTypes.number.isRequired,
+      status: PropTypes.string.isRequired
+    })
+  ).isRequired,
+  onEdit: PropTypes.func.isRequired
 }
 
 export default ProxyList 

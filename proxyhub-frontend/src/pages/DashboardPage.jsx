@@ -22,7 +22,10 @@ const DashboardPage = () => {
 
   const handleSubmit = (data) => {
     if (editingProxy) {
-      updateProxy(editingProxy.id, data)
+      updateProxy({
+        id: editingProxy.id,
+        ...data
+      })
     } else {
       addProxy(data)
     }

@@ -31,11 +31,27 @@ export const handlers = [
   // Update proxy
   http.put('http://localhost:3000/proxies/:id', async ({ params, request }) => {
     const { id } = params
-    const updatedProxy = await request.json()
-    proxies = proxies.map(proxy => 
-      proxy.id === Number(id) ? { ...updatedProxy, id: Number(id) } : proxy
-    )
-    return HttpResponse.json(updatedProxy, {
+    const updatedData = await request.json()
+    
+    // Finde den Index des zu aktualisierenden Proxies
+    const index = proxies.findIndex(p => p.id === Number(id))
+    
+    if (index !== -1) {
+      // Aktualisiere den Proxy und behalte die ID
+      proxies[index] = {
+        ...updatedData,
+        id: Number(id)
+      }
+      
+      // Gib den aktualisierten Proxy zurück
+      return HttpResponse.json(proxies[index], {
+        status: 200,
+        delay: 500
+      })
+    }
+    
+    return new HttpResponse(null, { 
+      status: 404,
       delay: 500
     })
   }),
