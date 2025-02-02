@@ -7,22 +7,21 @@ try {
   redis = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD,
-    retryStrategy: () => null,
-    save: "" // Deaktiviert die Persistenz
+    password: process.env.REDIS_PASSWORD || undefined,
+    retryStrategy: () => null
   })
 
   redis.on('error', (err) => {
-    console.log('Redis not available, continuing without cache')
+    console.log('Redis error:', err)
     isRedisAvailable = false
   })
 
   redis.on('connect', () => {
-    console.log('Redis Client Connected')
+    console.log('Redis connected')
     isRedisAvailable = true
   })
 } catch (error) {
-  console.log('Redis initialization failed, continuing without cache')
+  console.log('Redis initialization failed:', error)
 }
 
 const CACHE_TTL = 60 * 5 // 5 Minuten
@@ -57,9 +56,10 @@ const invalidateCache = async (userId) => {
     const keys = await redis.keys(pattern)
     if (keys.length) {
       await redis.del(keys)
+      console.log(`Cache invalidated for user ${userId}`)
     }
   } catch (error) {
-    console.log('Cache invalidation failed')
+    console.error('Cache invalidation failed:', error)
   }
 }
 
