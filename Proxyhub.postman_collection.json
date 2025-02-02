@@ -1,0 +1,149 @@
+{
+	"info": {
+		"_postman_id": "401d2afe-a48f-47de-bce5-a6b4586e500c",
+		"name": "Proxyhub",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41545827"
+	},
+	"item": [
+		{
+			"name": "login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"test@tes.com\",\r\n  \"password\": \"test12\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Test3 User\",\r\n    \"email\": \"test4@test.com\",\r\n    \"password\": \"test123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add proxy",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzllOGVhMzU5MTRjOGRjYjk0MDg2ZjQiLCJpYXQiOjE3Mzg0NDQ0NTEsImV4cCI6MTczODUzMDg1MX0.LzErI_i7B_aNGi6gWrUFUJW4EIUf0_zfLhVFQISyIJw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Test Proxy\",\r\n    \"host\": \"192.168.1.12\",\r\n    \"port\": 8080,\r\n    \"status\": \"active\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/proxies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"proxies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get proxies",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzllOGVhMzU5MTRjOGRjYjk0MDg2ZjQiLCJpYXQiOjE3Mzg0NDQ0NTEsImV4cCI6MTczODUzMDg1MX0.LzErI_i7B_aNGi6gWrUFUJW4EIUf0_zfLhVFQISyIJw",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/api/proxies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"proxies"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
