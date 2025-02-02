@@ -1,22 +1,34 @@
 const Redis = require('ioredis')
 
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD,
-  retryStrategy: (times) => {
-    const delay = Math.min(times * 50, 2000)
-    return delay
-  }
-})
+let redis = null
+let isRedisAvailable = false
 
-redis.on('error', (err) => console.error('Redis Client Error:', err))
-redis.on('connect', () => console.log('Redis Client Connected'))
+try {
+  redis = new Redis({
+    host: process.env.REDIS_HOST || 'localhost',
+    port: process.env.REDIS_PORT || 6379,
+    password: process.env.REDIS_PASSWORD,
+    retryStrategy: () => null,
+    save: "" // Deaktiviert die Persistenz
+  })
+
+  redis.on('error', (err) => {
+    console.log('Redis not available, continuing without cache')
+    isRedisAvailable = false
+  })
+
+  redis.on('connect', () => {
+    console.log('Redis Client Connected')
+    isRedisAvailable = true
+  })
+} catch (error) {
+  console.log('Redis initialization failed, continuing without cache')
+}
 
 const CACHE_TTL = 60 * 5 // 5 Minuten
 
 const cacheMiddleware = async (req, res, next) => {
-  if (req.method !== 'GET') return next()
+  if (!isRedisAvailable || req.method !== 'GET') return next()
 
   const key = `cache:${req.user.id}:${req.originalUrl}`
   try {
@@ -25,7 +37,6 @@ const cacheMiddleware = async (req, res, next) => {
       return res.json(JSON.parse(cached))
     }
     
-    // Original response.json speichern
     const originalJson = res.json
     res.json = function(data) {
       redis.setex(key, CACHE_TTL, JSON.stringify(data))
@@ -34,16 +45,21 @@ const cacheMiddleware = async (req, res, next) => {
     
     next()
   } catch (error) {
-    console.error('Redis Error:', error)
     next()
   }
 }
 
 const invalidateCache = async (userId) => {
-  const pattern = `cache:${userId}:*`
-  const keys = await redis.keys(pattern)
-  if (keys.length) {
-    await redis.del(keys)
+  if (!isRedisAvailable) return
+  
+  try {
+    const pattern = `cache:${userId}:*`
+    const keys = await redis.keys(pattern)
+    if (keys.length) {
+      await redis.del(keys)
+    }
+  } catch (error) {
+    console.log('Cache invalidation failed')
   }
 }
 
