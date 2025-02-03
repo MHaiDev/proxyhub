@@ -1,3 +1,9 @@
+/**
+ * Main application setup and configuration
+ * Configures Express server, middleware, and routes
+ * @module App
+ */
+
 const express = require('express')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
@@ -7,38 +13,37 @@ const authRoutes = require('./routes/auth.routes')
 
 const app = express()
 
-// CORS vor allen anderen Middlewares
+/**
+ * Configure security and middleware
+ */
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }))
 
-// Security Middleware
 app.use(helmet())
+app.use(express.json())
 
-// Rate Limiting
+/**
+ * Rate limiting configuration
+ */
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100
 })
 app.use('/api/', limiter)
 
-// Request Logging Middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`)
-  next()
-})
-
-// Middleware
-app.use(express.json())
-
-// Routes
+/**
+ * Route configuration
+ */
 app.use('/api/auth', authRoutes)
 app.use('/api/proxies', proxyRoutes)
 
-// Error handling mit Logging
+/**
+ * Global error handler
+ */
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack)
   res.status(500).json({ message: 'Something went wrong!' })

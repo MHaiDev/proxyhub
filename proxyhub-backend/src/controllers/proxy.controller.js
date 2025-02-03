@@ -1,7 +1,18 @@
+/**
+ * Controller for handling proxy-related operations
+ * Manages CRUD operations and status management for proxies
+ * @module ProxyController
+ */
+
 const Proxy = require('../models/proxy.model')
 const { invalidateCache } = require('../services/redis.service')
 
-// Get all proxies for user
+/**
+ * Retrieves all proxies for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON array of proxies
+ */
 const getProxies = async (req, res) => {
   try {
     const proxies = await Proxy.find({ userId: req.user.id })
@@ -11,7 +22,16 @@ const getProxies = async (req, res) => {
   }
 }
 
-// Create new proxy
+/**
+ * Creates a new proxy for the authenticated user
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Proxy data
+ * @param {string} req.body.name - Name of the proxy
+ * @param {string} req.body.host - Host address
+ * @param {number} req.body.port - Port number
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON of created proxy
+ */
 const createProxy = async (req, res) => {
   try {
     const proxy = new Proxy({
@@ -27,7 +47,15 @@ const createProxy = async (req, res) => {
   }
 }
 
-// Update proxy
+/**
+ * Updates an existing proxy
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Proxy ID to update
+ * @param {Object} req.body - Updated proxy data
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON of updated proxy
+ */
 const updateProxy = async (req, res) => {
   try {
     const proxy = await Proxy.findOneAndUpdate(
@@ -49,7 +77,14 @@ const updateProxy = async (req, res) => {
   }
 }
 
-// Delete proxy
+/**
+ * Deletes a proxy
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Proxy ID to delete
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - Success message
+ */
 const deleteProxy = async (req, res) => {
   try {
     const proxy = await Proxy.findOneAndDelete({
@@ -67,7 +102,14 @@ const deleteProxy = async (req, res) => {
   }
 }
 
-// Toggle proxy status
+/**
+ * Toggles proxy active/inactive status
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Proxy ID to toggle
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>} - JSON of updated proxy
+ */
 const toggleStatus = async (req, res) => {
   try {
     const proxy = await Proxy.findOne({

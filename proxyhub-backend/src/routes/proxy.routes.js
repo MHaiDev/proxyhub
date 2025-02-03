@@ -1,3 +1,9 @@
+/**
+ * Router for proxy-related endpoints
+ * Handles all proxy CRUD operations and status management
+ * @module ProxyRoutes
+ */
+
 const router = require('express').Router()
 const { 
   getProxies, 
@@ -8,17 +14,15 @@ const {
 } = require('../controllers/proxy.controller')
 const authMiddleware = require('../middleware/auth.middleware')
 
-// Optional Redis einbinden
-let cacheMiddleware = (req, res, next) => {
-  console.log('Cache disabled, using dummy middleware')
-  next()
-}
+/**
+ * Redis cache middleware configuration
+ * Falls back to dummy middleware if Redis is unavailable
+ * @type {Function}
+ */
+let cacheMiddleware = (req, res, next) => next()
 try {
   const { cacheMiddleware: redisCacheMiddleware } = require('../services/redis.service')
-  cacheMiddleware = async (req, res, next) => {
-    console.log('Checking Redis cache...')
-    await redisCacheMiddleware(req, res, next)
-  }
+  cacheMiddleware = redisCacheMiddleware
 } catch (error) {
   console.log('Redis not available, continuing without caching')
 }

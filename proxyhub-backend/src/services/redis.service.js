@@ -1,5 +1,15 @@
+/**
+ * Redis service for caching and performance optimization
+ * Handles caching of proxy data and cache invalidation
+ * @module RedisService
+ */
+
 const Redis = require('ioredis')
 
+/**
+ * Redis client instance
+ * @type {Redis}
+ */
 let redis = null
 let isRedisAvailable = false
 
@@ -26,6 +36,13 @@ try {
 
 const CACHE_TTL = 60 * 5 // 5 Minuten
 
+/**
+ * Cache middleware for request handling
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Next middleware function
+ * @returns {Promise<void>}
+ */
 const cacheMiddleware = async (req, res, next) => {
   if (!isRedisAvailable || req.method !== 'GET') return next()
 
@@ -48,6 +65,11 @@ const cacheMiddleware = async (req, res, next) => {
   }
 }
 
+/**
+ * Invalidates cache for a specific user
+ * @param {string} userId - User ID whose cache needs to be invalidated
+ * @returns {Promise<void>}
+ */
 const invalidateCache = async (userId) => {
   if (!isRedisAvailable) return
   
@@ -56,7 +78,6 @@ const invalidateCache = async (userId) => {
     const keys = await redis.keys(pattern)
     if (keys.length) {
       await redis.del(keys)
-      console.log(`Cache invalidated for user ${userId}`)
     }
   } catch (error) {
     console.error('Cache invalidation failed:', error)

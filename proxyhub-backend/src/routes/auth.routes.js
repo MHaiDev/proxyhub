@@ -1,8 +1,22 @@
+/**
+ * Authentication routes for user registration and login
+ * Handles user authentication and token generation
+ * @module AuthRoutes
+ */
+
 const router = require('express').Router()
 const User = require('../models/user.model')
 const jwt = require('jsonwebtoken')
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
-// Login Route
+
+/**
+ * Login route handler
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.email - User email
+ * @param {string} req.body.password - User password
+ * @returns {Object} User data and JWT token
+ */
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body
@@ -39,7 +53,15 @@ router.post('/login', async (req, res) => {
   }
 })
 
-// Register Route
+/**
+ * Registration route handler
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.email - User email
+ * @param {string} req.body.password - User password
+ * @param {string} req.body.name - User name
+ * @returns {Object} User data and JWT token
+ */
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body

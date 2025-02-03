@@ -1,5 +1,15 @@
+/**
+ * Mongoose model for proxy management
+ * Defines the schema and methods for proxy objects
+ * @module ProxyModel
+ */
+
 const mongoose = require('mongoose')
 
+/**
+ * Proxy Schema
+ * @type {mongoose.Schema}
+ */
 const proxySchema = new mongoose.Schema({
   name: { type: String, required: true },
   host: { type: String, required: true },
@@ -26,5 +36,4 @@ const proxySchema = new mongoose.Schema({
 })
 
 const Proxy = mongoose.model('Proxy', proxySchema)
-
 module.exports = Proxy 
