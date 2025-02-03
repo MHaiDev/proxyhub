@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const User = require('../models/user.model')
 const jwt = require('jsonwebtoken')
-
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 // Login Route
 router.post('/login', async (req, res) => {
   try {
@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
     // Echter JWT Token statt mock-token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '24h' }
     )
 
@@ -57,7 +57,7 @@ router.post('/register', async (req, res) => {
     // JWT Token erstellen
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '24h' }
     )
 
